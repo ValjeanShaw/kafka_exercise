@@ -2,7 +2,7 @@
 ![](https://img.shields.io/badge/about-kafka-green.svg)
 ![](https://img.shields.io/badge/about-docker-blue.svg)
 
-## 使用docker单机搭建kafka集群
+## 一、使用docker单机搭建kafka集群
 
 > 环境准备：docker环境，docker-compose工具
 
@@ -55,7 +55,7 @@ docker-compose exec kafka bash
 ./kafka-console-consumer.sh --bootstrap-server 172.27.0.5:9092 --topic my-test --from-beginning
 ```
 
-## springboot和kafka的整合
+## 二、springboot和kafka的整合
 
 > 环境准备： spring boot开发环境
 
@@ -109,3 +109,46 @@ public class KafkaUtil {
     }
 }
 ```
+
+## 三、kafka的多种处理方式
+
+1. 同一个ConsumerGroup，同一个topic下的消息只被消费一次，即同一个ConsumerGroup下只能有一个consumer消费消息。
+不同ConsumerGroup，消息都会被不同ConsumerGroup中的一个consumer消费
+
+
+例子：
+发送端按照一个指定topic发送消息：
+```
+    private final static String TOPIC_1 = "my-test";
+    
+    @RequestMapping(value = "/send", method = RequestMethod.POST,produces = {"application/json"})
+    @ResponseBody
+    public String sendKafka(@RequestBody String param) {
+        kafkaTemplate.send(TOPIC_1, param);
+        return param;
+    }
+```
+
+消费者指定相应的consumerGroup和topic:
+```
+    @KafkaListener(groupId = "group1", topics = "my-test")
+    public void processMessage(ConsumerRecord<?, ?> record) {
+        log.info("group1  my-test消费信息：{}", record.toString());
+    }
+
+    @KafkaListener(groupId = "group2", topics = "my-test")
+    public void processMessage2(String content) {
+        log.info("group2 process--2  my-test消费消息：{}", content);
+    }
+
+    @KafkaListener(groupId = "group2", topics = "my-test")
+    public void processMessage3(String content) {
+        log.info("group2 process--3  my-test消费消息 {}", content);
+    }
+
+```
+发送一个消息，结果如下：
+![](images/consumer1.jpg)
+
+processMessage2方法和processMessage3同属于一个consumerGroup,只有一个consumer能消费
+processMessage方法和processMessage3分属于两个consumerGroup,两者均会消费消息

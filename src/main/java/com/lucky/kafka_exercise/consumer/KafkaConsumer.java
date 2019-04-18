@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author: xiaoran
  * @date: 2019-03-23 15:33
  * <p>
- * 1.同一个consumer  同一个topic下的消息只被消费一次  不同consumer下，消息都会被消费
+ * 1.同一个consumer-group  同一个topic下的消息只被消费一次,即只能有一个consumer消费消息   不同consumer-group下，消息都会被多个consumer消费
  * 2.同一topic   processMessage(String content)和processMessage(ConsumerRecord<?, ?> record)  优先选择匹配 string content
  */
 @Component
