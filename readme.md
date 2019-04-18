@@ -34,7 +34,7 @@ docker-compose up -d --scale kafka=3
 ```
 docker ps
 ```
-
+![](images/docker_ps.png)
 
 
 4. 测试
