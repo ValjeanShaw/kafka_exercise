@@ -1,4 +1,6 @@
 # kafka & springboot
+![](https://img.shields.io/badge/about-kafka-green.svg)
+![](https://img.shields.io/badge/about-docker-green.svg)
 
 ## 使用docker单机搭建kafka集群
 
