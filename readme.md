@@ -150,5 +150,5 @@ public class KafkaUtil {
 发送一个消息，结果如下：
 ![](images/consumer1.jpg)
 
-processMessage2方法和processMessage3同属于一个consumerGroup,只有一个consumer能消费
-processMessage方法和processMessage3分属于两个consumerGroup,两者均会消费消息
+* processMessage2方法和processMessage3同属于一个consumerGroup,只有一个consumer能消费
+* processMessage方法和processMessage3分属于两个consumerGroup,两者均会消费消息
