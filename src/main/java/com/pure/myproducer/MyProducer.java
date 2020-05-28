@@ -19,10 +19,12 @@ public class MyProducer {
     public static void main(String[] args) {
         MyProducer myProducer = new MyProducer();
         myProducer.sendWithSerializer();
+        myProducer.sendWithPartition();
+        myProducer.sendWithMyPartition();
     }
 
     /**
-     * 自定义分区器开始跑
+     * 自定义序列化方式开始跑
      */
     public void sendWithSerializer(){
         Properties properties = new Properties();
@@ -43,6 +45,68 @@ public class MyProducer {
         }catch (Exception e){
             e.printStackTrace();
         }
+        producer.close();
+    }
+
+
+    public void sendWithPartition(){
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
+
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERLIST);
+
+
+        KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
+        //无key
+        ProducerRecord<String,String> record0 = new ProducerRecord<>(TOPIC,"beijing");
+        //指定key
+        ProducerRecord<String,String> record1 = new ProducerRecord<>(TOPIC,"alibaba","hangzhou");
+        //指定分区
+        ProducerRecord<String,String> record2 = new ProducerRecord<>(TOPIC,2,"tencent","shenzhen");
+
+        try{
+            producer.send(record0);
+            producer.send(record1);
+            producer.send(record2);
+
+            System.out.println("发送成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        producer.close();
+    }
+
+    /**
+     * 自定义分区器
+     */
+    public void sendWithMyPartition(){
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
+
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERLIST);
+
+        properties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, MyPartition.class.getName());
+
+
+        KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
+
+        ProducerRecord<String,String> record0 = new ProducerRecord<>(TOPIC,"chengdu");
+
+        for (int i = 0; i < 10; i++) {
+            try{
+                producer.send(record0);
+                System.out.println("发送成功");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
         producer.close();
     }
 
