@@ -18,10 +18,13 @@ public class MyProducer {
 
     public static void main(String[] args) {
         MyProducer myProducer = new MyProducer();
-        myProducer.sendWithSerializer();
-        myProducer.sendWithPartition();
-        myProducer.sendWithMyPartition();
+//        myProducer.sendWithSerializer();
+//        myProducer.sendWithPartition();
+//        myProducer.sendWithMyPartition();
         myProducer.sendWithInterceptor();
+
+        //拦截器-分区器-序列化器
+        myProducer.sendWithLink();
     }
 
     /**
@@ -126,8 +129,6 @@ public class MyProducer {
         properties.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, MyInterceptor.class.getName()+","+MyInterceptor.class.getName());
 
 
-
-
         KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
 
         ProducerRecord<String,String> record0 = new ProducerRecord<>(TOPIC,"chengdu");
@@ -141,5 +142,32 @@ public class MyProducer {
         producer.close();
     }
 
+
+    public void sendWithLink(){
+        Properties properties = new Properties();
+
+        //自定义分区器
+        properties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, MyPartition.class.getName());
+
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        //自定义序列化器
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, MySerializer.class.getName());
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERLIST);
+
+        //可以集成多个，按照逗号隔开，先执行前者
+        properties.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, MyInterceptor2.class.getName());
+
+        //发送的value值是定制化的
+        KafkaProducer<String,Company> producer = new KafkaProducer<>(properties);
+        ProducerRecord<String,Company> record = new ProducerRecord<>(TOPIC,new Company("alibaba","hangzhou"));
+
+        try{
+            producer.send(record);
+            System.out.println("发送处理后的消息成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        producer.close();
+    }
 
 }

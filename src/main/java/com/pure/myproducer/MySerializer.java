@@ -18,6 +18,7 @@ public class MySerializer implements Serializer<Company> {
 
     @Override
     public byte[] serialize(String topic, Company data) {
+        System.out.println("执行自定义序列化器");
         if (data == null) {
             return null;
         }
