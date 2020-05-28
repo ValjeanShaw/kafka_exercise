@@ -21,6 +21,7 @@ public class MyProducer {
         myProducer.sendWithSerializer();
         myProducer.sendWithPartition();
         myProducer.sendWithMyPartition();
+        myProducer.sendWithInterceptor();
     }
 
     /**
@@ -107,6 +108,36 @@ public class MyProducer {
             }
         }
 
+        producer.close();
+    }
+
+    /**
+     * 自定义拦截器
+     */
+    public void sendWithInterceptor(){
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
+
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BROKERLIST);
+        //可以集成多个，按照逗号隔开，先执行前者
+        properties.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, MyInterceptor.class.getName()+","+MyInterceptor.class.getName());
+
+
+
+
+        KafkaProducer<String,String> producer = new KafkaProducer<>(properties);
+
+        ProducerRecord<String,String> record0 = new ProducerRecord<>(TOPIC,"chengdu");
+
+        try{
+            producer.send(record0);
+            System.out.println("发送拦截器之后的消息成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         producer.close();
     }
 
