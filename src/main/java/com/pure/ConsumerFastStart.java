@@ -14,6 +14,10 @@ import java.util.Properties;
  * @date 2020/05/27
  */
 public class ConsumerFastStart {
+    /**
+     * 并非需要所有的 broker，生产者会从给定的 broker 里查找到其他 broker。
+     * 建议至少要设置两个以上的 broker 地址信息，当其中任意一个宕机时，生产者仍然可以连接到 Kafka 集群上。
+     */
     private static final String brokerList = "172.23.7.12:9092";
     private static final String topic = "mytopic";
     private static final String groupId = "group.demo";
